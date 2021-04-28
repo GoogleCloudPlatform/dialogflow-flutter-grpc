@@ -13,13 +13,10 @@
 // limitations under the License.
 
 import 'dart:async';
-import 'package:dialogflow_grpc/v2beta1.dart';
-import 'package:dialogflow_grpc/generated/google/cloud/dialogflow/v2beta1/session.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sound_stream/sound_stream.dart';
-import 'dart:io' show Platform;
 
 // TODO import Dialogflow
 
@@ -66,9 +63,9 @@ class _ChatState extends State<Chat> {
         });
     });
 
-    //await Future.wait([
-    //  _recorder.initialize()
-    //]);
+    await Future.wait([
+      _recorder.initialize()
+    ]);
 
 
 
@@ -95,17 +92,15 @@ class _ChatState extends State<Chat> {
 
     _audioStream = BehaviorSubject<List<int>>();
     _audioStreamSubscription = _recorder.audioStream.listen((data) {
-      //print(data);
+      print(data);
       _audioStream.add(data);
     });
 
 
     // TODO Create SpeechContexts
-
-    // TODO Create and audio InputConfig
+    // Create an audio InputConfig
 
     // TODO Make the streamingDetectIntent call, with the InputConfig and the audioStream
-
     // TODO Get the transcript and detectedIntent and show on screen
 
   }
@@ -146,7 +141,7 @@ class _ChatState extends State<Chat> {
                       onPressed: () => handleSubmitted(_textController.text),
                     ),
                   ),
-                  if (Platform.isAndroid || Platform.isIOS) IconButton(
+                  IconButton(
                     iconSize: 30.0,
                     icon: Icon(_isRecording ? Icons.mic_off : Icons.mic),
                     onPressed: _isRecording ? stopStream : handleStream,
