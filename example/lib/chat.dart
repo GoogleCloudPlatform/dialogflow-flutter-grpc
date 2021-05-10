@@ -141,6 +141,8 @@ class _ChatState extends State<Chat> {
     var config = InputConfigV2beta1(
         encoding: 'AUDIO_ENCODING_LINEAR_16',
         languageCode: 'en-US',
+        // speechModelVariant: 'USE_ENHANCED',
+        // model: 'command_and_search',
         sampleRateHertz: 16000,
         singleUtterance: false,
         speechContexts: [biasList]);

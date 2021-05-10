@@ -13,8 +13,11 @@ import '../../generated/google/cloud/dialogflow/v2/audio_config.pb.dart';
 class InputConfigV2 {
   InputConfigV2(
       {this.audioEncoding = AudioEncoding.AUDIO_ENCODING_LINEAR_16,
-      this.encoding = "AUDIO_ENCODING_LINEAR_16",
-      this.languageCode = "en-US",
+      this.encoding = 'AUDIO_ENCODING_LINEAR_16',
+      this.modelVariant = SpeechModelVariant.USE_ENHANCED,
+      this.speechModelVariant = 'USE_ENHANCED',
+      this.languageCode = 'en-US',
+      this.model = 'command_and_search',
       this.singleUtterance = false,
       this.sampleRateHertz = 16000});
 
@@ -44,6 +47,42 @@ class InputConfigV2 {
   /// relevant only for streaming methods. Note: When specified, InputAudioConfig.single_utterance
   /// takes precedence over StreamingDetectIntentRequest.single_utterance.
   bool singleUtterance;
+
+  /// Which Speech model to select for the given request. Select the model best
+  /// suited to your domain to get best results.
+  /// If a model is not explicitly specified, then we auto-select a model based
+  /// on the parameters in the InputAudioConfig. If enhanced speech model is enabled
+  /// for the agent and an enhanced version of the specified model for the language
+  /// does not exist, then the speech is recognized using the standard version of the specified model.
+  /// Refer to Cloud Speech API documentation for more details.
+  /// https://cloud.google.com/speech-to-text/docs/basics#select-model
+  /// phone_call, video, command_and_search or default
+  String model;
+
+  /// Variant of the specified Speech model to use.
+  SpeechModelVariant modelVariant;
+  String speechModelVariant;
+
+  /// See the Cloud Speech documentation for which models have different variants.
+  /// For example, the "phone_call" model has both a standard and an enhanced variant.
+  /// When you use an enhanced model, you will generally receive higher
+  /// quality results than for a standard model.
+  // Take the audio encoding string and return object [AudioEncoding]
+  SpeechModelVariant getSpeechModelVariant(variant) {
+    print(variant);
+    switch (variant) {
+      case 'SPEECH_MODEL_VARIANT_UNSPECIFIED':
+        return SpeechModelVariant.SPEECH_MODEL_VARIANT_UNSPECIFIED;
+      case 'USE_BEST_AVAILABLE':
+        return SpeechModelVariant.USE_BEST_AVAILABLE;
+      case 'USE_STANDARD':
+        return SpeechModelVariant.USE_STANDARD;
+      case 'USE_ENHANCED':
+        return SpeechModelVariant.USE_ENHANCED;
+      default:
+        return SpeechModelVariant.USE_ENHANCED;
+    }
+  }
 
   /// Required. The language of the supplied audio as a
   /// [BCP-47](https://www.rfc-editor.org/rfc/bcp/bcp47.txt) language tag.
@@ -84,8 +123,10 @@ class InputConfigV2 {
     c.sampleRateHertz = this.sampleRateHertz;
     c.singleUtterance = this.singleUtterance;
     c.audioEncoding = getAudioEncoding(this.encoding);
-    c.model = 'command_and_search'; // TODO
-    c.modelVariant = SpeechModelVariant.USE_ENHANCED; // TODO
+    c.model = this.model;
+    c.modelVariant = getSpeechModelVariant(this.speechModelVariant);
+
+    print(c);
 
     return c;
   }
