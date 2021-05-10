@@ -97,23 +97,11 @@ Detecting an intent based on an audio stream:
     var config = InputConfigV2beta1(
         encoding: 'AUDIO_ENCODING_LINEAR_16',
         languageCode: 'en-US',
-        sampleRateHertz: 8000,
+        sampleRateHertz: 16000,
         singleUtterance: false,
         speechContexts: [biasList]
     );
     
-    // import 'dart:io' show Platform;
-    // On iOS
-    if (Platform.isIOS) {
-      config = InputConfigV2beta1(
-          encoding: 'AUDIO_ENCODING_LINEAR_16',
-          languageCode: 'en-US',
-          sampleRateHertz: 16000,
-          singleUtterance: false,
-          speechContexts: [biasList]
-      );
-    }
-
     // Make the streamingDetectIntent call, with the InputConfig and the audioStream
     final responseStream = dialogflow.streamingDetectIntent(config, _audioStream);
     responseStream.listen((data) {
@@ -169,6 +157,13 @@ defaultConfig {
 }
 ```
 
+Add the following permissions to **app/src/main/AndroidManifest.xml**:
+
+```xml
+<uses-permission android:name="android.permission.INTERNET"/>
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+```
+
 ### iOS
 
 In order to build the example for iOS devices, you will need to give permissions to the microphone.
@@ -176,7 +171,7 @@ Add this to the **ios/Runner/Info.plist** file.
 
 ```xml
 <key>NSMicrophoneUsageDescription</key>
-<string>Need microphone access for uploading videos</string>
+<string>Need microphone access for Speech to Text input</string>
 ```
 
 Developer Website: https://www.leeboonstra.dev
