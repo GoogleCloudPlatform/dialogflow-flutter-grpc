@@ -17,11 +17,10 @@ import 'package:test/test.dart';
 import 'package:dialogflow_grpc/v2.dart';
 import 'package:dialogflow_grpc/dialogflow_auth.dart';
 
-void main()  {
+void main() {
   WidgetsFlutterBinding.ensureInitialized();
 
   group('Dialogflow V2', () {
-
     late DialogflowGrpcV2 dialogflow;
     late ServiceAccount serviceAccount;
     late String credentialsString;
@@ -36,8 +35,8 @@ void main()  {
     });
 
     test('Throws error when credentials.json does not exist.', () {
-          expect(() => ServiceAccount.fromFile(new File('assets/notexisting.json')),
-              throwsA(isA<FileNotFoundException>()));
+      expect(() => ServiceAccount.fromFile(new File('assets/notexisting.json')),
+          throwsA(isA<FileNotFoundException>()));
     });
 
     test('Valid service account', () {
@@ -57,6 +56,5 @@ void main()  {
       var output = data.queryResult.intent.displayName;
       expect(output, "Default Fallback Intent");
     });
-
   });
 }

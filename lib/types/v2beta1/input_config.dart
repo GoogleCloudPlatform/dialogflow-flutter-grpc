@@ -1,4 +1,4 @@
-import 'package:dialogflow_grpc/generated/google/cloud/dialogflow/v2beta1/audio_config.pb.dart';
+import '../../generated/google/cloud/dialogflow/v2beta1/audio_config.pb.dart';
 
 /// Helper Class For passing in audio input config
 ///
@@ -6,19 +6,19 @@ import 'package:dialogflow_grpc/generated/google/cloud/dialogflow/v2beta1/audio_
 /// var config = InputConfigV2beta1(
 ///   encoding: 'AUDIO_ENCODING_LINEAR_16',
 ///   languageCode: 'en-US',
-///   sampleRateHertz: 8000,
+///   sampleRateHertz: 16000,
 ///   singleUtterance: false,
 ///   speechContexts: [biasList]
 /// );
 ///
 class InputConfigV2beta1 {
-  InputConfigV2beta1({
-    this.audioEncoding = AudioEncoding.AUDIO_ENCODING_LINEAR_16,
-    this.encoding = "AUDIO_ENCODING_LINEAR_16",
-    this.languageCode = "en-US",
-    this.singleUtterance = false,
-    this.speechContexts = const [],
-    this.sampleRateHertz = 8000});
+  InputConfigV2beta1(
+      {this.audioEncoding = AudioEncoding.AUDIO_ENCODING_LINEAR_16,
+      this.encoding = "AUDIO_ENCODING_LINEAR_16",
+      this.languageCode = "en-US",
+      this.singleUtterance = false,
+      this.speechContexts = const [],
+      this.sampleRateHertz = 16000});
 
   /// Required. String encoding of audio data sent in all RecognitionAudio messages.
   /// [See AudioEncoding docs](https://cloud.google.com/dialogflow/es/docs/reference/rpc/google.cloud.dialogflow.v2#google.cloud.dialogflow.v2.AudioEncoding)
@@ -60,7 +60,7 @@ class InputConfigV2beta1 {
   final List<SpeechContextV2Beta1> speechContexts;
 
   // Take the audio encoding string and return object [AudioEncoding]
-  AudioEncoding getAudioEncoding(encoding){
+  AudioEncoding getAudioEncoding(encoding) {
     switch (encoding) {
       case 'UNSPECIFIED':
         return AudioEncoding.AUDIO_ENCODING_UNSPECIFIED;
@@ -84,15 +84,18 @@ class InputConfigV2beta1 {
   }
 
   // Cast to proper InputAudio object
-  InputAudioConfig cast(){
-    InputAudioConfig c =  InputAudioConfig();
+  InputAudioConfig cast() {
+    InputAudioConfig c = InputAudioConfig();
 
     c.languageCode = this.languageCode;
     c.sampleRateHertz = this.sampleRateHertz;
     c.singleUtterance = this.singleUtterance;
     c.audioEncoding = getAudioEncoding(this.encoding);
+    c.model = 'command_and_search'; // TODO
+    c.modelVariant = SpeechModelVariant.USE_ENHANCED; // TODO
 
-    c.speechContexts.addAll(speechContexts.map((sc) => sc.toGoogleSpeechContext()));
+    c.speechContexts
+        .addAll(speechContexts.map((sc) => sc.toGoogleSpeechContext()));
 
     return c;
   }
@@ -111,15 +114,12 @@ class InputConfigV2beta1 {
 ///);
 ///
 class SpeechContextV2Beta1 {
-  SpeechContextV2Beta1({
-    this.phrases = const [],
-    this.boost = 20
-  });
+  SpeechContextV2Beta1({this.phrases = const [], this.boost = 20});
 
   final List<String> phrases;
   final double boost;
 
-  SpeechContext toGoogleSpeechContext() =>
-      SpeechContext()..phrases.addAll(phrases)
-      ..boost = boost;
+  SpeechContext toGoogleSpeechContext() => SpeechContext()
+    ..phrases.addAll(phrases)
+    ..boost = boost;
 }

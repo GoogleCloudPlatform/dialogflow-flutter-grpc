@@ -12,14 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-
 import 'dart:async';
-import 'package:dialogflow_grpc/dialogflow_grpc.dart';
-import 'package:dialogflow_grpc/generated/google/cloud/dialogflow/v2beta1/audio_config.pb.dart';
-import 'package:dialogflow_grpc/generated/google/cloud/dialogflow/v2beta1/session.pb.dart';
-import 'package:dialogflow_grpc/generated/google/cloud/dialogflow/v2beta1/session.pbgrpc.dart';
-import 'package:dialogflow_grpc/types/v2beta1/input_config.dart';
-import 'package:dialogflow_grpc/dialogflow_auth.dart';
+import 'dialogflow_grpc.dart';
+import 'generated/google/cloud/dialogflow/v2beta1/audio_config.pb.dart';
+import 'generated/google/cloud/dialogflow/v2beta1/session.pb.dart';
+import 'generated/google/cloud/dialogflow/v2beta1/session.pbgrpc.dart';
+import 'types/v2beta1/input_config.dart';
+import 'dialogflow_auth.dart';
 import 'package:grpc/grpc.dart';
 import 'package:uuid/uuid.dart';
 
@@ -27,7 +26,6 @@ import 'package:uuid/uuid.dart';
 /// Creates a SessionsClient for detecting intents
 /// This class requires a service account.
 class DialogflowGrpcV2Beta1 {
-
   final CallOptions _options;
 
   // [ClientChannel] which is used for Dialogflow
@@ -62,7 +60,6 @@ class DialogflowGrpcV2Beta1 {
     return DialogflowGrpcV2Beta1._(account.callOptions);
   }
 
-
   /// Listen to audio stream.
   /// Cancelled as soon as dispose is called.
   late StreamSubscription<List<int>> _audioStreamSubscription;
@@ -72,14 +69,12 @@ class DialogflowGrpcV2Beta1 {
   /// var data = await dialogflow.detectIntent(text, 'en-US');
   /// print(data.queryResult.fulfillmentText);
   /// ```
-  Future<DetectIntentResponse> detectIntent(String text, String lang){
-
+  Future<DetectIntentResponse> detectIntent(String text, String lang) {
     final inputText = TextInput()
       ..text = text
       ..languageCode = lang;
 
-    final queryInput = QueryInput()
-    ..text = inputText;
+    final queryInput = QueryInput()..text = inputText;
 
     final request = DetectIntentRequest()
       ..queryInput = queryInput
@@ -117,8 +112,7 @@ class DialogflowGrpcV2Beta1 {
   /// });
   /// ```
   Stream<StreamingDetectIntentResponse> streamingDetectIntent(
-      InputConfigV2beta1 config, Stream<List<int>> audioStream)   {
-
+      InputConfigV2beta1 config, Stream<List<int>> audioStream) {
     // Create the stream, which later transmits the necessary
     // data to the Google Api.
     final request = StreamController<StreamingDetectIntentRequest>();
@@ -130,15 +124,13 @@ class DialogflowGrpcV2Beta1 {
 
     print(queryInput);
 
-    request
-        .add(StreamingDetectIntentRequest()
+    request.add(StreamingDetectIntentRequest()
       ..queryInput = queryInput
-      ..session = DialogflowAuth.session
-    );
+      ..session = DialogflowAuth.session);
 
     // Send the request first
     // Afterwards start streaming the audio
-     _audioStreamSubscription = audioStream.listen((audio) {
+    _audioStreamSubscription = audioStream.listen((audio) {
       // Add audio content when stream changes.
       request.add(StreamingDetectIntentRequest()..inputAudio = audio);
     });
@@ -156,4 +148,3 @@ class DialogflowGrpcV2Beta1 {
     _audioStreamSubscription.cancel();
   }
 }
-

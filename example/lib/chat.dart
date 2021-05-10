@@ -19,7 +19,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sound_stream/sound_stream.dart';
-import 'dart:io' show Platform;
 
 // TODO import Dialogflow
 import 'package:dialogflow_grpc/dialogflow_grpc.dart';
@@ -67,11 +66,7 @@ class _ChatState extends State<Chat> {
         });
     });
 
-    //await Future.wait([
-    //  _recorder.initialize()
-    //]);
-
-
+    await Future.wait([_recorder.initialize()]);
 
     // TODO Get a Service account
     // Get a Service account
@@ -79,7 +74,6 @@ class _ChatState extends State<Chat> {
         '${(await rootBundle.loadString('assets/credentials.json'))}');
     // Create a DialogflowGrpc Instance
     dialogflow = DialogflowGrpcV2Beta1.viaServiceAccount(serviceAccount);
-
   }
 
   void stopStream() async {
@@ -108,12 +102,11 @@ class _ChatState extends State<Chat> {
       DetectIntentResponse data = await dialogflow.detectIntent(text, 'en-US');
       fulfillmentText = data.queryResult.fulfillmentText;
       print(fulfillmentText);
-    }
-    catch(e) {
+    } catch (e) {
       print(e);
     }
 
-    if(fulfillmentText.isNotEmpty) {
+    if (fulfillmentText.isNotEmpty) {
       ChatMessage botMessage = ChatMessage(
         text: fulfillmentText,
         name: "Bot",
@@ -124,8 +117,6 @@ class _ChatState extends State<Chat> {
         _messages.insert(0, botMessage);
       });
     }
-
-
   }
 
   void handleStream() async {
@@ -133,58 +124,40 @@ class _ChatState extends State<Chat> {
 
     _audioStream = BehaviorSubject<List<int>>();
     _audioStreamSubscription = _recorder.audioStream.listen((data) {
-      //print(data);
+      print(data);
       _audioStream.add(data);
     });
 
-
     // TODO Create SpeechContexts
-    var biasList = SpeechContextV2Beta1(
-        phrases: [
-          'Dialogflow CX',
-          'Dialogflow Essentials',
-          'Action Builder',
-          'HIPAA'
-        ],
-        boost: 20.0
-    );
+    var biasList = SpeechContextV2Beta1(phrases: [
+      'Dialogflow CX',
+      'Dialogflow Essentials',
+      'Action Builder',
+      'HIPAA'
+    ], boost: 20.0);
 
     // TODO Create and audio InputConfig
     //  See: https://cloud.google.com/dialogflow/es/docs/reference/rpc/google.cloud.dialogflow.v2#google.cloud.dialogflow.v2.InputAudioConfig
     var config = InputConfigV2beta1(
         encoding: 'AUDIO_ENCODING_LINEAR_16',
         languageCode: 'en-US',
-        sampleRateHertz: 8000,
+        sampleRateHertz: 16000,
         singleUtterance: false,
-        speechContexts: [biasList]
-    );
-
-    if (Platform.isIOS) {
-      config = InputConfigV2beta1(
-          encoding: 'AUDIO_ENCODING_LINEAR_16',
-          languageCode: 'en-US',
-          sampleRateHertz: 16000,
-          singleUtterance: false,
-          speechContexts: [biasList]
-      );
-    }
+        speechContexts: [biasList]);
 
     // TODO Make the streamingDetectIntent call, with the InputConfig and the audioStream
-    final responseStream = dialogflow.streamingDetectIntent(config, _audioStream);
-
+    final responseStream =
+        dialogflow.streamingDetectIntent(config, _audioStream);
 
     // TODO Get the transcript and detectedIntent and show on screen
-// Get the transcript and detectedIntent and show on screen
+    // Get the transcript and detectedIntent and show on screen
     responseStream.listen((data) {
-      //print('----');
       setState(() {
-        //print(data);
         String transcript = data.recognitionResult.transcript;
         String queryText = data.queryResult.queryText;
         String fulfillmentText = data.queryResult.fulfillmentText;
 
-        if(fulfillmentText.isNotEmpty) {
-
+        if (fulfillmentText.isNotEmpty) {
           ChatMessage message = new ChatMessage(
             text: queryText,
             name: "You",
@@ -200,19 +173,16 @@ class _ChatState extends State<Chat> {
           _messages.insert(0, message);
           _textController.clear();
           _messages.insert(0, botMessage);
-
         }
-        if(transcript.isNotEmpty) {
+        if (transcript.isNotEmpty) {
           _textController.text = transcript;
         }
-
       });
-    },onError: (e){
-      //print(e);
-    },onDone: () {
+    }, onError: (e) {
+      print(e);
+    }, onDone: () {
       //print('done');
     });
-
   }
 
   // The chat interface
@@ -223,11 +193,11 @@ class _ChatState extends State<Chat> {
     return Column(children: <Widget>[
       Flexible(
           child: ListView.builder(
-            padding: EdgeInsets.all(8.0),
-            reverse: true,
-            itemBuilder: (_, int index) => _messages[index],
-            itemCount: _messages.length,
-          )),
+        padding: EdgeInsets.all(8.0),
+        reverse: true,
+        itemBuilder: (_, int index) => _messages[index],
+        itemCount: _messages.length,
+      )),
       Divider(height: 1.0),
       Container(
           decoration: BoxDecoration(color: Theme.of(context).cardColor),
@@ -241,7 +211,8 @@ class _ChatState extends State<Chat> {
                     child: TextField(
                       controller: _textController,
                       onSubmitted: handleSubmitted,
-                      decoration: InputDecoration.collapsed(hintText: "Send a message"),
+                      decoration:
+                          InputDecoration.collapsed(hintText: "Send a message"),
                     ),
                   ),
                   Container(
@@ -251,7 +222,7 @@ class _ChatState extends State<Chat> {
                       onPressed: () => handleSubmitted(_textController.text),
                     ),
                   ),
-                  if (Platform.isAndroid || Platform.isIOS) IconButton(
+                  IconButton(
                     iconSize: 30.0,
                     icon: Icon(_isRecording ? Icons.mic_off : Icons.mic),
                     onPressed: _isRecording ? stopStream : handleStream,
@@ -259,12 +230,10 @@ class _ChatState extends State<Chat> {
                 ],
               ),
             ),
-          )
-      ),
+          )),
     ]);
   }
 }
-
 
 //------------------------------------------------------------------------------------
 // The chat message balloon
@@ -287,8 +256,7 @@ class ChatMessage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            Text(this.name,
-                style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(this.name, style: TextStyle(fontWeight: FontWeight.bold)),
             Container(
               margin: const EdgeInsets.only(top: 5.0),
               child: Text(text),
@@ -317,9 +285,9 @@ class ChatMessage extends StatelessWidget {
         margin: const EdgeInsets.only(left: 16.0),
         child: CircleAvatar(
             child: Text(
-              this.name[0],
-              style: TextStyle(fontWeight: FontWeight.bold),
-            )),
+          this.name[0],
+          style: TextStyle(fontWeight: FontWeight.bold),
+        )),
       ),
     ];
   }
