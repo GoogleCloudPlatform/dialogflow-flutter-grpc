@@ -39,7 +39,7 @@ class _ChatState extends State<Chat> {
   StreamSubscription<List<int>> _audioStreamSubscription;
   BehaviorSubject<List<int>> _audioStream;
 
-  // TODO DialogflowGrpc class instance
+  // TODO DialogflowGrpcV2Beta1 class instance
 
   @override
   void initState() {
@@ -66,8 +66,6 @@ class _ChatState extends State<Chat> {
     await Future.wait([
       _recorder.initialize()
     ]);
-
-
 
     // TODO Get a Service account
 

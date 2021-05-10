@@ -13,14 +13,14 @@
 // limitations under the License.
 
 import 'dart:async';
-import 'package:dialogflow_grpc/v2beta1.dart';
-import 'package:dialogflow_grpc/generated/google/cloud/dialogflow/v2beta1/session.pb.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:rxdart/rxdart.dart';
 import 'package:sound_stream/sound_stream.dart';
 
 // TODO import Dialogflow
+import 'package:dialogflow_grpc/v2beta1.dart';
+import 'package:dialogflow_grpc/generated/google/cloud/dialogflow/v2beta1/session.pb.dart';
 import 'package:dialogflow_grpc/dialogflow_grpc.dart';
 
 class Chat extends StatefulWidget {
@@ -137,7 +137,7 @@ class _ChatState extends State<Chat> {
     ], boost: 20.0);
 
     // TODO Create and audio InputConfig
-    //  See: https://cloud.google.com/dialogflow/es/docs/reference/rpc/google.cloud.dialogflow.v2#google.cloud.dialogflow.v2.InputAudioConfig
+    // See: https://cloud.google.com/dialogflow/es/docs/reference/rpc/google.cloud.dialogflow.v2#google.cloud.dialogflow.v2.InputAudioConfig
     var config = InputConfigV2beta1(
         encoding: 'AUDIO_ENCODING_LINEAR_16',
         languageCode: 'en-US',
