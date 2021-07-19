@@ -13,14 +13,17 @@
 // limitations under the License.
 
 import 'dart:async';
+
+import 'package:grpc/grpc.dart';
+import 'package:uuid/uuid.dart';
+
+import 'dialogflow_auth.dart';
 import 'dialogflow_grpc.dart';
 import 'generated/google/cloud/dialogflow/v2beta1/audio_config.pb.dart';
 import 'generated/google/cloud/dialogflow/v2beta1/session.pb.dart';
 import 'generated/google/cloud/dialogflow/v2beta1/session.pbgrpc.dart';
+import 'generated/google/protobuf/struct.pb.dart';
 import 'types/v2beta1/input_config.dart';
-import 'dialogflow_auth.dart';
-import 'package:grpc/grpc.dart';
-import 'package:uuid/uuid.dart';
 
 /// An interface to Google Cloud's Dialogflow V2 gRPC API
 /// Creates a SessionsClient for detecting intents
@@ -79,6 +82,29 @@ class DialogflowGrpcV2Beta1 {
     final request = DetectIntentRequest()
       ..queryInput = queryInput
       ..session = DialogflowAuth.session;
+
+    return client.detectIntent(request);
+  }
+
+  /// Processes a custom events and returns structured, actionable data as a result.
+  /// Optionally, you can provide parameters to the intent through [parameters]
+  ///
+  /// ```dart
+  /// var data = await dialogflow.detectEventIntent('WELCOME', 'en-US');
+  /// print(data.queryResult.fulfillmentText);
+  /// ```
+  Future<DetectIntentResponse> detectEventIntent(String eventName, String lang,
+      {Struct? parameters}) {
+    final eventInput = EventInput(
+      name: eventName,
+      languageCode: lang,
+      parameters: parameters,
+    );
+
+    final queryInput = QueryInput(event: eventInput);
+
+    final request = DetectIntentRequest(
+        queryInput: queryInput, session: DialogflowAuth.session);
 
     return client.detectIntent(request);
   }
