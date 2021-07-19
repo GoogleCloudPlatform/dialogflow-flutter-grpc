@@ -13,13 +13,16 @@
 // limitations under the License.
 
 import 'dart:async';
+
+import 'package:grpc/grpc.dart';
+import 'package:uuid/uuid.dart';
+
+import 'dialogflow_auth.dart';
 import 'generated/google/cloud/dialogflow/v2/audio_config.pb.dart';
 import 'generated/google/cloud/dialogflow/v2/session.pb.dart';
 import 'generated/google/cloud/dialogflow/v2/session.pbgrpc.dart';
+import 'generated/google/protobuf/struct.pb.dart';
 import 'types/v2/input_config.dart';
-import 'dialogflow_auth.dart';
-import 'package:grpc/grpc.dart';
-import 'package:uuid/uuid.dart';
 
 /// An interface to Google Cloud's Dialogflow V2 gRPC API
 /// Creates a SessionsClient for detecting intents
@@ -84,6 +87,29 @@ class DialogflowGrpcV2 {
     return client.detectIntent(request);
   }
 
+  /// Processes a custom events and returns structured, actionable data as a result.
+  /// Optionally, you can provide parameters to the intent through [parameters]
+  ///
+  /// ```dart
+  /// var data = await dialogflow.detectEventIntent('WELCOME', 'en-US');
+  /// print(data.queryResult.fulfillmentText);
+  /// ```
+  Future<DetectIntentResponse> detectEventIntent(String eventName, String lang,
+      {Struct? parameters}) {
+    final eventInput = EventInput(
+      name: eventName,
+      languageCode: lang,
+      parameters: parameters,
+    );
+
+    final queryInput = QueryInput(event: eventInput);
+
+    final request = DetectIntentRequest(
+        queryInput: queryInput, session: DialogflowAuth.session);
+
+    return client.detectIntent(request);
+  }
+
   /// Processes a natural language query in audio format in a streaming fashion and returns structured, actionable data as a result.
   /// This method is only available via the gRPC API (not REST).
   /// Sends a [StreamingDetectIntentResponse] to the Dialogflow API
@@ -108,7 +134,7 @@ class DialogflowGrpcV2 {
     // add the session to the request
     // print(DialogflowAuth.session);
 
-    QueryInput queryInput = QueryInput()..audioConfig = config.cast();
+    final queryInput = QueryInput()..audioConfig = config.cast();
 
     print(queryInput);
     request.add(StreamingDetectIntentRequest()
