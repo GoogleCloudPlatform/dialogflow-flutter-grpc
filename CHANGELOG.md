@@ -2,7 +2,7 @@
 
 * Support for CX
 
-## 0.2.9.1
+## 0.2.9+1
 
 * Model & ModelVariant Settings
 * Fix example
